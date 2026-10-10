@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080d1b">
+<title>INFAS MOYENNE BY MADARA SOLITAIRE</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;padding:20px;
+ display:flex;justify-content:center;align-items:center;
+ font-family:Arial,sans-serif;color:white;
+ background:linear-gradient(#050918df,#050918f5),
+ url("https://ibb.co/8LBJqbdn") center/cover fixed;
+}
+.container{
+ width:100%;max-width:440px;padding:25px;
+ background:#0b1426ed;border:1px solid #245a91;
+ border-radius:22px;
+ box-shadow:0 0 30px #008cff30;
+}
+.logo{text-align:center;font-size:45px}
+h1{text-align:center;color:#35caff;font-size:23px;margin:8px 0}
+h2{text-align:center;font-size:15px;color:#fff;margin:0}
+.subtitle{text-align:center;color:#a8bad3;font-size:13px;margin:15px 0 25px}
+label{display:block;margin:16px 0 8px;font-size:14px;font-weight:bold}
+input,select{
+ width:100%;padding:14px;border-radius:10px;
+ border:1px solid #29476e;background:#101d34;
+ color:white;font-size:16px;outline:none
+}
+input:focus,select:focus{border-color:#35caff}
+button{
+ width:100%;padding:15px;margin-top:20px;
+ border:0;border-radius:10px;
+ background:linear-gradient(90deg,#087cff,#00d9ff);
+ color:white;font-size:15px;font-weight:bold;cursor:pointer
+}
+#resultat{
+ display:none;margin-top:22px;padding:18px;
+ background:#101d34;border:1px solid #29476e;
+ border-radius:14px;text-align:center
+}
+.moyenne{font-size:42px;font-weight:bold;color:#35caff;margin:12px}
+.ligne{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #293750}
+#mention{margin-top:15px;color:#70ffb2;font-weight:bold}
+.erreur{color:#ff8585;font-size:13px}
+footer{text-align:center;color:#8b9dbb;font-size:11px;margin-top:24px;line-height:1.8}
+</style>
+</head>
+
+<body>
+<main class="container">
+<div class="logo">🎓</div>
+<h1>INFAS MOYENNE</h1>
+<h2>BY MADARA SOLITAIRE</h2>
+<p class="subtitle">Calculateur de score et de moyenne INFAS</p>
+
+<form id="formulaire">
+<label for="total">Nombre total de questions</label>
+<input id="total" type="number" min="1" step="1" placeholder="Exemple : 100" required>
+
+<label for="bonnes">Nombre de bonnes réponses</label>
+<input id="bonnes" type="number" min="0" step="1" placeholder="Exemple : 75" required>
+
+<label for="bareme">Calcul de la note sur</label>
+<select id="bareme">
+<option value="20">20 points</option>
+<option value="10">10 points</option>
+<option value="100">100 points</option>
+</select>
+
+<button type="submit">🔥 CALCULER MA MOYENNE</button>
+<p id="erreur" class="erreur"></p>
+</form>
+
+<section id="resultat" aria-live="polite">
+<div>TA MOYENNE</div>
+<div class="moyenne" id="moyenne">0/20</div>
+<div class="ligne"><span>Score obtenu</span><strong id="score"></strong></div>
+<div class="ligne"><span>Pourcentage</span><strong id="pourcentage"></strong></div>
+<div class="ligne"><span>Questions ratées</span><strong id="ratees"></strong></div>
+<div id="mention"></div>
+<button type="button" onclick="partager()">📲 PARTAGER MON RÉSULTAT</button>
+<button type="button" onclick="window.print()">🖨️ IMPRIMER LE RÉSULTAT</button>
+</section>
+
+<footer>
+INFAS MOYENNE BY MADARA SOLITAIRE<br>
+Calculateur indépendant — non officiel
+</footer>
+</main>
+
+<script>
+document.getElementById("formulaire").addEventListener("submit",function(e){
+ e.preventDefault();
+
+ const total=Number(document.getElementById("total").value);
+ const bonnes=Number(document.getElementById("bonnes").value);
+ const bareme=Number(document.getElementById("bareme").value);
+ const erreur=document.getElementById("erreur");
+ const resultat=document.getElementById("resultat");
+
+ erreur.textContent="";
+ resultat.style.display="none";
+
+ if(!Number.isInteger(total)||!Number.isInteger(bonnes)||total<1||bonnes<0||bonnes>total){
+  erreur.textContent="Vérifie les nombres : les bonnes réponses doivent être comprises entre 0 et le total.";
+  return;
+ }
+
+ const pourcentage=bonnes/total*100;
+ const note=bonnes/total*bareme;
+
+ document.getElementById("moyenne").textContent=
+  note.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+"/"+bareme;
+
+ document.getElementById("score").textContent=bonnes+" / "+total;
+ document.getElementById("pourcentage").textContent=pourcentage.toFixed(2).replace(".",",")+" %";
+ document.getElementById("ratees").textContent=total-bonnes;
+
+ let mention;
+ if(pourcentage>=80) mention="🔥 Excellent résultat !";
+ else if(pourcentage>=60) mention="💪 Très bon travail !";
+ else if(pourcentage>=50) mention="📚 Continue tes efforts !";
+ else mention="⚡ Entraîne-toi encore, ne lâche rien !";
+
+ document.getElementById("mention").textContent=mention;
+ resultat.style.display="block";
+ resultat.scrollIntoView({behavior:"smooth",block:"nearest"});
+});
+
+function partager(){
+ const texte="🎓 INFAS MOYENNE BY MADARA SOLITAIRE\n"+
+ "Mon résultat : "+document.getElementById("moyenne").textContent+"\n"+
+ "Score : "+document.getElementById("score").textContent+"\n"+
+ "Pourcentage : "+document.getElementById("pourcentage").textContent;
+
+ if(navigator.share){
+  navigator.share({title:"Mon résultat INFAS",text:texte}).catch(()=>{});
+ }else if(navigator.clipboard){
+  navigator.clipboard.writeText(texte).then(()=>alert("Résultat copié !"));
+ }else{
+  alert(texte);
+ }
+}
+</script>
+</body>
+</html>
